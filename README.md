@@ -9,3 +9,7 @@
 
 `docker run tsypaev/fake_lucene_backend`
  
+## Java Quickstart:
+`mvn package` - create < jarfilename >.jar file;
+
+`java -jar < jarfilename >.jar` - start application.
