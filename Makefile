@@ -1,5 +1,5 @@
 VERSION := $(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-SERVICE := fake_lucene_backend
+SERVICE := fake-lucene-backend
 
 .PHONY: create_image
 create_image:
