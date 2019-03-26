@@ -2,6 +2,10 @@ package ru.tsypaev.database.backend.dataretrieval.entity;
 
 import javax.persistence.*;
 
+/**
+ * @author Tsypaev Vladimir
+ */
+
 @Entity
 @Table(name = "movies")
 public class Movie {

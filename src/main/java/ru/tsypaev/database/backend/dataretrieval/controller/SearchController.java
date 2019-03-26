@@ -7,6 +7,10 @@ import ru.tsypaev.database.backend.dataretrieval.services.TextProcessingService;
 
 import java.util.List;
 
+/**
+ * @author Tsypaev Vladimir
+ */
+
 @RestController
 @RequestMapping("/search")
 public class SearchController {

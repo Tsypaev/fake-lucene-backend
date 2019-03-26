@@ -7,6 +7,10 @@ import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 
 import java.util.List;
 
+/**
+ * @author Tsypaev Vladimir
+ */
+
 @Repository
 public interface MoviesRepository extends CrudRepository<Movie, Long> {
 
