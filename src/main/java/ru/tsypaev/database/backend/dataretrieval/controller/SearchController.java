@@ -5,6 +5,7 @@ import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.services.MoviesService;
 import ru.tsypaev.database.backend.dataretrieval.services.TextProcessingService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -24,7 +25,8 @@ public class SearchController {
     }
 
     @GetMapping(params = {"q"})
-    List<Movie> getMoviesCount(@RequestParam("q") String searchingText) {
+    List<Movie> getMoviesCount(@RequestParam("q") String searchingText, HttpServletResponse response) {
+        response.addHeader("Access-Control-Allow-Origin","*");
         int yearFromText = textProcessingService.getYearFromText(searchingText);
         return moviesService.findText("%" + searchingText + "%",yearFromText);
     }
