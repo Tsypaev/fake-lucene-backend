@@ -4,9 +4,9 @@ EXPOSE 8080
 
 ARG SERVICENAME="unknown"
 ARG VERSION="unknown"
-ARG WORKDIR="/usr/lib/hercules/${SERVICENAME}"
+ARG WORKDIR="/usr/lib/lucene/${SERVICENAME}"
 
-COPY ${SERVICENAME}/target/${SERVICENAME}-${VERSION}.jar ${WORKDIR}/app.jar
+COPY target/${SERVICENAME}-${VERSION}.jar ${WORKDIR}/app.jar
 
 WORKDIR ${WORKDIR}
 
