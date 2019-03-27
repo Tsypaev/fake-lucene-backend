@@ -13,7 +13,7 @@
 * frontend - https://github.com/vysokiylev
 
 ## Super Quickstart Backend and Frontend:
-`docker-compose up`
+`docker-compose up` - app will be startes on localhost:3000
 
 ## Docker Quickstart Backend: 
 `docker pull tsypaev/fake_lucene_backend:0.0.2-SNAPSHOT`
