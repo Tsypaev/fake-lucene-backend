@@ -4,6 +4,14 @@
 * /ping - return OK if service is available;
 * /search/q=< text > - return first 10 notes from DB which contains < text >.
 
+## Sources:
+* backend - https://github.com/Tsypaev/fake-lucene-backend 
+* frontend - https://github.com/vysokiylev/lab1-front
+
+## Authors:
+* backend - https://github.com/Tsypaev
+* frontend - https://github.com/vysokiylev
+
 ## Super Quickstart Backend and Frontend:
 `docker-compose up`
 
