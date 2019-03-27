@@ -30,3 +30,16 @@
 `mvn package` - create < jarfilename >.jar file;
 
 `java -jar < jarfilename >.jar` - start application.
+
+## Node.js Quickstart:
+requirements: node.js 7+;
+
+`npm install` - install dependencies;
+
+`npm run build` - build web;
+
+`npm run start` - start application.
+
+
+
+
