@@ -4,10 +4,19 @@
 * /ping - return OK if service is available;
 * /search/q=< text > - return first 10 notes from DB which contains < text >.
 
-## Docker Quickstart: 
-`docker pull tsypaev/fake_lucene_backend:0.0.1-SNAPSHOT`
+## Super Quickstart Backend and Frontend:
+`docker-compose up`
 
-`docker run -p < localport >:8080 tsypaev/fake_lucene_backend:0.0.1-SNAPSHOT`
+## Docker Quickstart Backend: 
+`docker pull tsypaev/fake_lucene_backend:0.0.2-SNAPSHOT`
+
+`docker run -p < localport >:8080 tsypaev/fake_lucene_backend:0.0.2-SNAPSHOT`
+ 
+## Docker Quickstart Frontend: 
+`docker pull tsypaev/fake_lucene_frontend:0.0.2`
+
+`docker run -p < localport >:8080 tsypaev/fake_lucene_frontend:0.0.2`
+ 
  
 ## Java Quickstart:
 `mvn package` - create < jarfilename >.jar file;
