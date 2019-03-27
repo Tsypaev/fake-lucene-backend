@@ -23,7 +23,7 @@
 ## Docker Quickstart Frontend: 
 `docker pull tsypaev/fake_lucene_frontend:0.0.2`
 
-`docker run -p < localport >:8080 tsypaev/fake_lucene_frontend:0.0.2`
+`docker run -p < localport >:3000 tsypaev/fake_lucene_frontend:0.0.2`
  
  
 ## Java Quickstart:
