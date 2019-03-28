@@ -1,5 +1,12 @@
-# fake-lucene-backend
 [![Build Status](https://travis-ci.org/Tsypaev/fake-lucene-backend.svg?branch=master)](https://travis-ci.org/Tsypaev/fake-lucene-backend)
+
+# fake-lucene-backend
+##Technology:
+* java 1.8;
+* node.js;
+* spring-boot;
+* postgreSql.
+
 ## Methods:
 * /ping - return OK if service is available;
 * /search/q=< text > - return first 10 notes from DB which contains < text >.
