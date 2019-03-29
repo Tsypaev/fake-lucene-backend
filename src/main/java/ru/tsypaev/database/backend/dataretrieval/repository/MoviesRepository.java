@@ -16,4 +16,10 @@ public interface MoviesRepository extends CrudRepository<Movie, Long> {
     @Query(value = "SELECT name FROM data_retrieval.public.movies LIMIT 10", nativeQuery = true)
     List<String> getNames();
 
+    @Query(value = "SELECT year FROM data_retrieval.public.movies LIMIT 10", nativeQuery = true)
+    List<Integer> getYears();
+
+    @Query(value = "SELECT id FROM data_retrieval.public.movies LIMIT 10", nativeQuery = true)
+    List<Integer> getId();
+
 }
