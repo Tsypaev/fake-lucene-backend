@@ -5,7 +5,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.*;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -33,7 +31,7 @@ public class LuceneService {
         this.moviesRepository = moviesRepository;
     }
 
-    public String searchLucene(String query) throws IOException, ParseException {
+    public String searchLucene(String query) throws Exception {
 
         final Directory directory = FSDirectory.open(LuceneBinding.INDEX_PATH);
         final IndexWriterConfig iwConfig = new IndexWriterConfig(LuceneBinding.getAnalyzer());
@@ -62,21 +60,31 @@ public class LuceneService {
 
         indexWriter.close();
 
-        Directory dir = FSDirectory.open(Paths.get(String.valueOf(LuceneBinding.INDEX_PATH)));
-        IndexReader reader = DirectoryReader.open(dir);
-        IndexSearcher searcher = new IndexSearcher(reader);
+        IndexSearcher searcher = createSearcher();
+        TopDocs foundDocs2 = searchByFirstName("Deadline", searcher);
 
-        QueryParser qp = new QueryParser("name", new StandardAnalyzer());
-        Query idQuery = qp.parse(query);
-        TopDocs hits = searcher.search(idQuery, 10);
+        System.out.println("Toral Results :: " + foundDocs2.totalHits);
 
-        for (ScoreDoc sd : hits.scoreDocs)
+        for (ScoreDoc sd : foundDocs2.scoreDocs)
         {
             Document d = searcher.doc(sd.doc);
-            System.out.println(String.format(d.get("name")));
+            System.out.println(String.format(d.get("id")));
         }
-
-        System.out.println("Конец");
         return "test";
+    }
+
+    private static TopDocs searchByFirstName(String name, IndexSearcher searcher) throws Exception
+    {
+        QueryParser qp = new QueryParser("name", new StandardAnalyzer());
+        Query firstNameQuery = qp.parse(name);
+        TopDocs hits = searcher.search(firstNameQuery, 10);
+        return hits;
+    }
+
+    private static IndexSearcher createSearcher() throws IOException {
+        Directory dir = FSDirectory.open(LuceneBinding.INDEX_PATH);
+        IndexReader reader = DirectoryReader.open(dir);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        return searcher;
     }
 }

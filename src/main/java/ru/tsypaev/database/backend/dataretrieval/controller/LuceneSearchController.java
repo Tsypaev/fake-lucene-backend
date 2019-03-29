@@ -1,13 +1,10 @@
 package ru.tsypaev.database.backend.dataretrieval.controller;
 
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tsypaev.database.backend.dataretrieval.services.LuceneService;
-
-import java.io.IOException;
 
 /**
  * @author Tsypaev Vladimir
@@ -24,7 +21,7 @@ public class LuceneSearchController {
     }
 
     @GetMapping(params = {"q"})
-    String getMoviesCount(@RequestParam("q") String searchingText) throws IOException, ParseException {
+    String getMoviesCount(@RequestParam("q") String searchingText) throws Exception {
         return luceneService.searchLucene(searchingText);
     }
 }
