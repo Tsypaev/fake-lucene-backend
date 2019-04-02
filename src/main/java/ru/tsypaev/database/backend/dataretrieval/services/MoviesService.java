@@ -17,7 +17,11 @@ public class MoviesService {
         this.moviesRepository = moviesRepository;
     }
 
-    public List<Movie> findText(String text, int year){
-        return moviesRepository.universalFinder(text, year);
+    public List<Movie> findText(String text) {
+        return moviesRepository.findByTitle(text);
+    }
+
+    public List<Movie> findText(String text, int year) {
+        return moviesRepository.findByTitleAndYear(text, year);
     }
 }

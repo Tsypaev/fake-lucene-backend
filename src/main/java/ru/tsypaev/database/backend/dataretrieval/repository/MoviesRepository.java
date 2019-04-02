@@ -14,8 +14,11 @@ import java.util.List;
 @Repository
 public interface MoviesRepository extends CrudRepository<Movie, Long> {
 
-    @Query(value =  "SELECT * FROM data_retrieval.public.movies WHERE name ILIKE (SELECT REPLACE(?1,' ', '%')) UNION ALL SELECT * FROM data_retrieval.public.movies WHERE year = ?2 LIMIT 10", nativeQuery = true)
-    List<Movie> universalFinder(String text, int year);
+    @Query(value =  "SELECT * FROM data_retrieval.public.movies WHERE name ILIKE (SELECT REPLACE(?1,' ', '%')) LIMIT 10", nativeQuery = true)
+    List<Movie> findByTitle(String text);
+
+    @Query(value =  "SELECT * FROM data_retrieval.public.movies WHERE name ILIKE (SELECT REPLACE(?1,' ', '%')) and year = ?2 LIMIT 10", nativeQuery = true)
+    List<Movie> findByTitleAndYear(String text, int year);
 
     @Query(value = "SELECT name FROM data_retrieval.public.movies LIMIT 10", nativeQuery = true)
     List<String> getNames();

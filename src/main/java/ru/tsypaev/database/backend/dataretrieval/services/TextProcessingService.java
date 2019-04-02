@@ -8,12 +8,16 @@ import java.util.regex.Pattern;
 @Service
 public class TextProcessingService {
 
-    public int getYearFromText(String text){
+    public int getYearFromText(String text) {
         Pattern pattern = Pattern.compile("\\d{4}");
         Matcher matcher = pattern.matcher(text);
-        if (matcher.find()){
+        if (matcher.find()) {
             return Integer.parseInt(matcher.group());
         }
         return Integer.MIN_VALUE;
+    }
+
+    public String deleteYearFromText(String text, int year) {
+        return text.replaceAll(String.valueOf(year), "");
     }
 }
