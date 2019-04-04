@@ -2,9 +2,12 @@ package ru.tsypaev.database.backend.dataretrieval.services;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.*;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -14,15 +17,20 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.lucene.document.Field.Store.YES;
 
 @Service
 public class LuceneService {
 
     private IndexWriter indexWriter = null;
+    private IndexReader indexReader = null;
 
     @Autowired
     private final MoviesRepository moviesRepository;
@@ -31,46 +39,52 @@ public class LuceneService {
         this.moviesRepository = moviesRepository;
     }
 
-    public String searchLucene(String query) throws Exception {
+    public List<Movie> searchLucene(String query) throws Exception {
+
+        List<Movie> movies = new ArrayList<>();
 
         final Directory directory = FSDirectory.open(LuceneBinding.INDEX_PATH);
         final IndexWriterConfig iwConfig = new IndexWriterConfig(LuceneBinding.getAnalyzer());
         iwConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         this.indexWriter = new IndexWriter(directory, iwConfig);
 
-        final Document doc = new Document();
-
-        final FieldType nameType = new FieldType();
-        nameType.setIndexOptions(IndexOptions.DOCS);
-        nameType.setStored(true);
-        nameType.setTokenized(false);
-        nameType.setStoreTermVectorOffsets(false);
-        nameType.setStoreTermVectorPayloads(false);
-        nameType.setStoreTermVectorPositions(false);
-        nameType.setStoreTermVectors(false);
-
         List<String> names = moviesRepository.getNames();
+        List<Integer> years = moviesRepository.getYears();
+        List<Integer> uids = moviesRepository.getId();
 
 
         for (int i = 0; i < names.size(); i++) {
-            doc.add(new Field(LuceneBinding.NAME_FIELD, names.get(i), nameType));
-            indexWriter.addDocument(doc);
+            final Document doc = new Document();
+            doc.add(new StringField(LuceneBinding.ID_FIELD, uids.get(i).toString(), YES));
+            doc.add(new TextField(LuceneBinding.NAME_FIELD, names.get(i), YES));
+            doc.add(new StringField(LuceneBinding.YEAR_FIELD, years.get(i).toString(), YES));
             System.out.println(i);
+            indexWriter.addDocument(doc);
         }
 
+        indexWriter.commit();
         indexWriter.close();
 
-        IndexSearcher searcher = createSearcher();
-        TopDocs foundDocs2 = searchByFirstName("Deadline", searcher);
+        this.indexReader = DirectoryReader.open(directory);
+
+        IndexSearcher searcher = new IndexSearcher(indexReader);
+
+        TopDocs foundDocs2 = searchByFirstName(query, searcher);
 
         System.out.println("Toral Results :: " + foundDocs2.totalHits);
 
         for (ScoreDoc sd : foundDocs2.scoreDocs)
         {
             Document d = searcher.doc(sd.doc);
-            System.out.println(String.format(d.get("id")));
+            Movie movie = new Movie();
+            movie.setName(d.get(LuceneBinding.NAME_FIELD));
+            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
+            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
+            movies.add(movie);
         }
-        return "test";
+
+        indexReader.close();
+        return movies;
     }
 
     private static TopDocs searchByFirstName(String name, IndexSearcher searcher) throws Exception
@@ -87,4 +101,5 @@ public class LuceneService {
         IndexSearcher searcher = new IndexSearcher(reader);
         return searcher;
     }
+
 }

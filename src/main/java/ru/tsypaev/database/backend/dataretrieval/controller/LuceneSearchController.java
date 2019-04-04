@@ -4,7 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.services.LuceneService;
+
+import java.util.List;
 
 /**
  * @author Tsypaev Vladimir
@@ -21,7 +24,7 @@ public class LuceneSearchController {
     }
 
     @GetMapping(params = {"q"})
-    String getMoviesCount(@RequestParam("q") String searchingText) throws Exception {
+    List<Movie> getMoviesCount(@RequestParam("q") String searchingText) throws Exception {
         return luceneService.searchLucene(searchingText);
     }
 }
