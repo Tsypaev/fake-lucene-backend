@@ -49,8 +49,8 @@ public class LuceneService {
 
         List<TopDocs> topDocs = searchByFewWords(text, searcher);
 
-        for (int i = 0; i < topDocs.size() ; i++) {
-            if(i<1){
+        for (int i = 0; i < topDocs.size(); i++) {
+            if (i < 1) {
                 addMoviesToList(movies, searcher, topDocs.get(i));
             } else {
                 List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
@@ -61,45 +61,6 @@ public class LuceneService {
         reader.close();
 
         return movies;
-    }
-
-    private List<Movie> addFakeMoviesToList(IndexSearcher searcher, TopDocs foundDocs) throws IOException {
-
-        List<Movie> newList = new ArrayList<>();
-
-        for (ScoreDoc docs : foundDocs.scoreDocs) {
-            Document d = searcher.doc(docs.doc);
-
-            Movie movie = new Movie();
-
-            movie.setName(d.get(LuceneBinding.NAME_FIELD));
-            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
-            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
-
-            newList.add(movie);
-        }
-        return newList;
-
-    }
-
-    private void addMoviesToList(List<Movie> movies, IndexSearcher searcher, TopDocs foundDocs) throws IOException {
-
-        for (ScoreDoc docs : foundDocs.scoreDocs) {
-            Document d = searcher.doc(docs.doc);
-
-            Movie movie = new Movie();
-
-            movie.setName(d.get(LuceneBinding.NAME_FIELD));
-            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
-            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
-
-            if (movies.contains(movie)) {
-                return;
-            }
-
-            movies.add(movie);
-        }
-
     }
 
     private Directory writeIndex() throws IOException {
@@ -125,6 +86,44 @@ public class LuceneService {
         indexWriter.close();
 
         return directory;
+    }
+
+    private void addMoviesToList(List<Movie> movies, IndexSearcher searcher, TopDocs foundDocs) throws IOException {
+
+        for (ScoreDoc docs : foundDocs.scoreDocs) {
+            Movie movie = createMovieFromDocs(searcher, docs);
+
+            if (movies.contains(movie)) {
+                return;
+            }
+
+            movies.add(movie);
+        }
+
+    }
+
+    private List<Movie> addFakeMoviesToList(IndexSearcher searcher, TopDocs foundDocs) throws IOException {
+
+        List<Movie> newList = new ArrayList<>();
+
+        for (ScoreDoc docs : foundDocs.scoreDocs) {
+            Movie movie = createMovieFromDocs(searcher, docs);
+
+            newList.add(movie);
+        }
+        return newList;
+
+    }
+
+    private Movie createMovieFromDocs(IndexSearcher searcher, ScoreDoc docs) throws IOException {
+        Document d = searcher.doc(docs.doc);
+
+        Movie movie = new Movie();
+
+        movie.setName(d.get(LuceneBinding.NAME_FIELD));
+        movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
+        movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
+        return movie;
     }
 
     private static TopDocs searchByName(String name, IndexSearcher searcher) throws Exception {
