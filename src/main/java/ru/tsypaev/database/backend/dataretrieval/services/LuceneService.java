@@ -35,32 +35,46 @@ public class LuceneService {
 
     @Autowired
     private final MoviesRepository moviesRepository;
+    private TextProcessingService textProcessingService;
 
-    public LuceneService(MoviesRepository moviesRepository) {
+    public LuceneService(MoviesRepository moviesRepository, TextProcessingService textProcessingService) {
         this.moviesRepository = moviesRepository;
+        this.textProcessingService = textProcessingService;
     }
 
-    public List<Movie> searchLucene(String text) throws Exception {
+    public List<Movie> searchLucene(String text, String type) throws Exception {
 
         List<Movie> movies = new ArrayList<>();
         Directory directory = writeIndex();
         IndexReader reader = DirectoryReader.open(directory);
         IndexSearcher searcher = new IndexSearcher(reader);
 
-        List<TopDocs> topDocs = searchByFewWords(text, searcher);
+        if (type.equals("all")){
+            List<TopDocs> topDocs = searchByFewWords(text, searcher);
 
-        for (int i = 0; i < topDocs.size(); i++) {
-            if (i < 1) {
-                addMoviesToList(movies, searcher, topDocs.get(i));
-            } else {
-                List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
-                movies.retainAll(movies1);
+            for (int i = 0; i < topDocs.size(); i++) {
+                if (i < 1) {
+                    addMoviesToList(movies, searcher, topDocs.get(i));
+                } else {
+                    List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
+                    movies.retainAll(movies1);
+                }
             }
+
+            reader.close();
+
+            return movies;
+        } else {
+            int yearFromText = textProcessingService.getYearFromText(text);
+            String processingString = textProcessingService.deleteYearFromText(text, yearFromText);
+            List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
+            for (int i = 0; i < topDocs.size(); i++) {
+                addMoviesToList(movies, searcher, topDocs.get(i));
+            }
+            reader.close();
+
+            return movies;
         }
-
-        reader.close();
-
-        return movies;
     }
 
     private Directory writeIndex() throws IOException {
@@ -156,6 +170,25 @@ public class LuceneService {
         for (int i = 0; i < words.length; i++) {
             topDocs.add(searchByPathName(words[i], searcher));
         }
+        return topDocs;
+    }
+
+    private static TopDocs searchByYear(String name, IndexSearcher searcher) throws Exception {
+        QueryParser qp = new QueryParser("year", new StandardAnalyzer());
+        Query firstNameQuery = qp.parse(name);
+        TopDocs hits = searcher.search(firstNameQuery, LIMIT);
+        return hits;
+    }
+
+    private static List<TopDocs> searchByTitleAndYear(String name, String year, IndexSearcher searcher) throws Exception {
+        List<TopDocs> topDocs = new ArrayList<>();
+
+        TopDocs docName = searchByPathName(name, searcher);
+        TopDocs docYear = searchByYear(year, searcher);
+
+        topDocs.add(docName);
+        topDocs.add(docYear);
+
         return topDocs;
     }
 }

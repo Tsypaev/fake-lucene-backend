@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.services.LuceneService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -23,8 +24,9 @@ public class LuceneSearchController {
         this.luceneService = luceneService;
     }
 
-    @GetMapping(params = {"q"})
-    List<Movie> getMovies(@RequestParam("q") String text) throws Exception {
-        return luceneService.searchLucene(text);
+    @GetMapping(params = {"q", "type"})
+    List<Movie> getMovies(@RequestParam("q") String text,  @RequestParam("type") String type, HttpServletResponse response) throws Exception {
+            response.addHeader("Access-Control-Allow-Origin","*");
+            return luceneService.searchLucene(text, type);
     }
 }
