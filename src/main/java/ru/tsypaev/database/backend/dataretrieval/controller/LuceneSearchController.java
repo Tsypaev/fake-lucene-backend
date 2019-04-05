@@ -24,7 +24,7 @@ public class LuceneSearchController {
     }
 
     @GetMapping(params = {"q"})
-    List<Movie> getMoviesCount(@RequestParam("q") String searchingText) throws Exception {
-        return luceneService.searchLucene(searchingText);
+    List<Movie> getMovies(@RequestParam("q") String text) throws Exception {
+        return luceneService.searchLucene(text);
     }
 }

@@ -8,11 +8,13 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,7 @@ import static org.apache.lucene.document.Field.Store.YES;
 @Service
 public class LuceneService {
 
-    private IndexWriter indexWriter = null;
-    private IndexReader indexReader = null;
+    public static final int LIMIT = 10;
 
     @Autowired
     private final MoviesRepository moviesRepository;
@@ -39,19 +40,77 @@ public class LuceneService {
         this.moviesRepository = moviesRepository;
     }
 
-    public List<Movie> searchLucene(String query) throws Exception {
+    public List<Movie> searchLucene(String text) throws Exception {
 
         List<Movie> movies = new ArrayList<>();
+        Directory directory = writeIndex();
+        IndexReader reader = DirectoryReader.open(directory);
+        IndexSearcher searcher = new IndexSearcher(reader);
 
-        final Directory directory = FSDirectory.open(LuceneBinding.INDEX_PATH);
-        final IndexWriterConfig iwConfig = new IndexWriterConfig(LuceneBinding.getAnalyzer());
-        iwConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-        this.indexWriter = new IndexWriter(directory, iwConfig);
+        List<TopDocs> topDocs = searchByFewWords(text, searcher);
+
+        for (int i = 0; i < topDocs.size() ; i++) {
+            if(i<1){
+                addMoviesToList(movies, searcher, topDocs.get(i));
+            } else {
+                List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
+                movies.retainAll(movies1);
+            }
+        }
+
+        reader.close();
+
+        return movies;
+    }
+
+    private List<Movie> addFakeMoviesToList(IndexSearcher searcher, TopDocs foundDocs) throws IOException {
+
+        List<Movie> newList = new ArrayList<>();
+
+        for (ScoreDoc docs : foundDocs.scoreDocs) {
+            Document d = searcher.doc(docs.doc);
+
+            Movie movie = new Movie();
+
+            movie.setName(d.get(LuceneBinding.NAME_FIELD));
+            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
+            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
+
+            newList.add(movie);
+        }
+        return newList;
+
+    }
+
+    private void addMoviesToList(List<Movie> movies, IndexSearcher searcher, TopDocs foundDocs) throws IOException {
+
+        for (ScoreDoc docs : foundDocs.scoreDocs) {
+            Document d = searcher.doc(docs.doc);
+
+            Movie movie = new Movie();
+
+            movie.setName(d.get(LuceneBinding.NAME_FIELD));
+            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
+            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
+
+            if (movies.contains(movie)) {
+                return;
+            }
+
+            movies.add(movie);
+        }
+
+    }
+
+    private Directory writeIndex() throws IOException {
+        Directory directory = FSDirectory.open(LuceneBinding.INDEX_PATH);
+        IndexWriterConfig writerConfig = new IndexWriterConfig(LuceneBinding.getAnalyzer());
+        writerConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        IndexWriter indexWriter = new IndexWriter(directory, writerConfig);
 
         List<String> names = moviesRepository.getNames();
         List<Integer> years = moviesRepository.getYears();
         List<Integer> uids = moviesRepository.getId();
-
 
         for (int i = 0; i < names.size(); i++) {
             final Document doc = new Document();
@@ -65,41 +124,39 @@ public class LuceneService {
         indexWriter.commit();
         indexWriter.close();
 
-        this.indexReader = DirectoryReader.open(directory);
-
-        IndexSearcher searcher = new IndexSearcher(indexReader);
-
-        TopDocs foundDocs2 = searchByFirstName(query, searcher);
-
-        System.out.println("Toral Results :: " + foundDocs2.totalHits);
-
-        for (ScoreDoc sd : foundDocs2.scoreDocs)
-        {
-            Document d = searcher.doc(sd.doc);
-            Movie movie = new Movie();
-            movie.setName(d.get(LuceneBinding.NAME_FIELD));
-            movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
-            movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
-            movies.add(movie);
-        }
-
-        indexReader.close();
-        return movies;
+        return directory;
     }
 
-    private static TopDocs searchByFirstName(String name, IndexSearcher searcher) throws Exception
-    {
+    private static TopDocs searchByName(String name, IndexSearcher searcher) throws Exception {
         QueryParser qp = new QueryParser("name", new StandardAnalyzer());
         Query firstNameQuery = qp.parse(name);
-        TopDocs hits = searcher.search(firstNameQuery, 10);
+        TopDocs hits = searcher.search(firstNameQuery, LIMIT);
         return hits;
     }
 
-    private static IndexSearcher createSearcher() throws IOException {
-        Directory dir = FSDirectory.open(LuceneBinding.INDEX_PATH);
-        IndexReader reader = DirectoryReader.open(dir);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        return searcher;
+    private static TopDocs searchByPathName(String name, IndexSearcher searcher) throws Exception {
+        WildcardQuery wildcardQuery = new WildcardQuery(new Term("name", "*" + name + "*"));
+        TopDocs hits = searcher.search(wildcardQuery, LIMIT);
+        return hits;
     }
 
+    private static List<TopDocs> searchByFewWords(String name, IndexSearcher searcher) throws Exception {
+        List<TopDocs> topDocs = new ArrayList<>();
+        String[] words = name.split(" ");
+
+        if (words.length == 1) {
+            if (searchByName(name, searcher).totalHits.value == 0) {
+                topDocs.add(searchByPathName(name, searcher));
+                return topDocs;
+            } else {
+                topDocs.add(searchByName(name, searcher));
+                return topDocs;
+            }
+        }
+
+        for (int i = 0; i < words.length; i++) {
+            topDocs.add(searchByPathName(words[i], searcher));
+        }
+        return topDocs;
+    }
 }
