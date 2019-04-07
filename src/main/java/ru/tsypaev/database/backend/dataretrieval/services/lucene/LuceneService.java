@@ -1,4 +1,4 @@
-package ru.tsypaev.database.backend.dataretrieval.services;
+package ru.tsypaev.database.backend.dataretrieval.services.lucene;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
+import ru.tsypaev.database.backend.dataretrieval.services.TextProcessingService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import static org.apache.lucene.document.Field.Store.YES;
 @Service
 public class LuceneService {
 
-    public static final int LIMIT = 10;
+    private static final int LIMIT = 10;
 
     @Autowired
     private final MoviesRepository moviesRepository;
@@ -52,14 +53,7 @@ public class LuceneService {
         if (type.equals("all")){
             List<TopDocs> topDocs = searchByFewWords(text, searcher);
 
-            for (int i = 0; i < topDocs.size(); i++) {
-                if (i < 1) {
-                    addMoviesToList(movies, searcher, topDocs.get(i));
-                } else {
-                    List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
-                    movies.retainAll(movies1);
-                }
-            }
+            dirtyHack(movies, searcher, topDocs);
 
             reader.close();
 
@@ -68,12 +62,21 @@ public class LuceneService {
             int yearFromText = textProcessingService.getYearFromText(text);
             String processingString = textProcessingService.deleteYearFromText(text, yearFromText);
             List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
-            for (int i = 0; i < topDocs.size(); i++) {
-                addMoviesToList(movies, searcher, topDocs.get(i));
-            }
+            dirtyHack(movies, searcher, topDocs);
             reader.close();
 
             return movies;
+        }
+    }
+
+    private void dirtyHack(List<Movie> movies, IndexSearcher searcher, List<TopDocs> topDocs) throws IOException {
+        for (int i = 0; i < topDocs.size(); i++) {
+            if (i < 1) {
+                addMoviesToList(movies, searcher, topDocs.get(i));
+            } else {
+                List<Movie> movies1 = addFakeMoviesToList(searcher, topDocs.get(i));
+                movies.retainAll(movies1);
+            }
         }
     }
 
@@ -143,14 +146,12 @@ public class LuceneService {
     private static TopDocs searchByName(String name, IndexSearcher searcher) throws Exception {
         QueryParser qp = new QueryParser("name", new StandardAnalyzer());
         Query firstNameQuery = qp.parse(name);
-        TopDocs hits = searcher.search(firstNameQuery, LIMIT);
-        return hits;
+        return searcher.search(firstNameQuery, LIMIT);
     }
 
     private static TopDocs searchByPathName(String name, IndexSearcher searcher) throws Exception {
         WildcardQuery wildcardQuery = new WildcardQuery(new Term("name", "*" + name + "*"));
-        TopDocs hits = searcher.search(wildcardQuery, LIMIT);
-        return hits;
+        return searcher.search(wildcardQuery, LIMIT);
     }
 
     private static List<TopDocs> searchByFewWords(String name, IndexSearcher searcher) throws Exception {
@@ -167,8 +168,8 @@ public class LuceneService {
             }
         }
 
-        for (int i = 0; i < words.length; i++) {
-            topDocs.add(searchByPathName(words[i], searcher));
+        for (String word : words) {
+            topDocs.add(searchByPathName(word, searcher));
         }
         return topDocs;
     }
@@ -176,8 +177,7 @@ public class LuceneService {
     private static TopDocs searchByYear(String name, IndexSearcher searcher) throws Exception {
         QueryParser qp = new QueryParser("year", new StandardAnalyzer());
         Query firstNameQuery = qp.parse(name);
-        TopDocs hits = searcher.search(firstNameQuery, LIMIT);
-        return hits;
+        return searcher.search(firstNameQuery, LIMIT);
     }
 
     private static List<TopDocs> searchByTitleAndYear(String name, String year, IndexSearcher searcher) throws Exception {

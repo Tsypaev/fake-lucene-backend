@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
-import ru.tsypaev.database.backend.dataretrieval.services.LuceneService;
+import ru.tsypaev.database.backend.dataretrieval.services.lucene.LuceneService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;

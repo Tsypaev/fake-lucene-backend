@@ -1,4 +1,4 @@
-package ru.tsypaev.database.backend.dataretrieval.services;
+package ru.tsypaev.database.backend.dataretrieval.services.lucene;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
