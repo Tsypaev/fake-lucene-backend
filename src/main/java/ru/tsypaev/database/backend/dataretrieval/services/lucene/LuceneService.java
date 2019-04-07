@@ -95,7 +95,6 @@ public class LuceneService {
             doc.add(new StringField(LuceneBinding.ID_FIELD, uids.get(i).toString(), YES));
             doc.add(new TextField(LuceneBinding.NAME_FIELD, names.get(i), YES));
             doc.add(new StringField(LuceneBinding.YEAR_FIELD, years.get(i).toString(), YES));
-            System.out.println(i);
             indexWriter.addDocument(doc);
         }
 
