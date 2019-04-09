@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tsypaev.database.backend.dataretrieval.services.scraping.ScrapingService;
 
+import java.io.IOException;
+
 /**
  * @author Vladimir Tsypaev
  */
@@ -20,7 +22,7 @@ public class UpdateDatabaseController {
     }
 
     @GetMapping
-    void updateDatabase(){
+    void updateDatabase() throws IOException {
         scrapingService.updateDatabase();
     }
 }

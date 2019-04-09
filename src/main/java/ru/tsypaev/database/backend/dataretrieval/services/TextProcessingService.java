@@ -17,6 +17,16 @@ public class TextProcessingService {
         return Integer.MIN_VALUE;
     }
 
+    public static String addZeros(Integer id) {
+        StringBuilder s = new StringBuilder(String.valueOf(id));
+        if (s.length() != 7) {
+            while (s.length() != 7) {
+                s.insert(0, "0");
+            }
+        }
+        return s.toString();
+    }
+
     public String deleteYearFromText(String text, int year) {
         return text.replaceAll(String.valueOf(year), "");
     }
