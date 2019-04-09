@@ -25,7 +25,7 @@ public class WebSpider {
     }
 
     private static String getPremierData(Document document){
-        Elements elements = document.select("#title-overview-widget > div.vital > div.title_block > div > div.titleBar > div.title_wrapper > div.subtext > a:nth-child(8)");
+        Elements elements = document.select("#title-overview-widget > div.vital > div.title_block > div > div.titleBar > div.title_wrapper > div.subtext > a:last-child");
         return elements.text().replaceAll("\\(.*\\)","");
     }
 
