@@ -45,7 +45,7 @@ public class WebSpider {
 
     private static List<String> getStarsList(Document document){
         List<String> starsList = new ArrayList<String>();
-        Elements elements = document.select("#title-overview-widget > div.plot_summary_wrapper > div.plot_summary > div:nth-child(4) > a:nth-child(-n+1)");
+        Elements elements = document.select("#title-overview-widget > div.plot_summary_wrapper > div.plot_summary > div:nth-child(4) > a:not(:last-child)");
         for(Element element : elements) {
             starsList.add(element.text());
         }
