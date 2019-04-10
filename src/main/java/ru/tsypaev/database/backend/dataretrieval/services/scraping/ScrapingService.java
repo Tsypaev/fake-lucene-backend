@@ -1,5 +1,6 @@
 package ru.tsypaev.database.backend.dataretrieval.services.scraping;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class ScrapingService {
 
     @Autowired
     MoviesRepository moviesRepository;
-    ScrapingUtil scrapingUtil;
+    private ScrapingUtil scrapingUtil;
 
     public ScrapingService(MoviesRepository moviesRepository, ScrapingUtil scrapingUtil) {
         this.moviesRepository = moviesRepository;
@@ -32,7 +33,7 @@ public class ScrapingService {
         for (Integer id : ids) {
             String s = TextProcessingService.addZeros(id);
 
-            Document document = new Document("https://www.imdb.com/title/tt" + s + "/");
+            Document document = Jsoup.connect("https://www.imdb.com/title/tt" + s + "/").get();
 
             scrapingUtil.putInfoIntoDb(s, document);
         }

@@ -1,5 +1,6 @@
 package ru.tsypaev.database.backend.dataretrieval.scraping;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,45 +15,45 @@ import java.util.List;
  */
 public class WebSpider {
 
-    public static String getName(Document document){
+    public static String getName(Document document) {
         Elements elements = document.select(".title_wrapper>h1");
-        return elements.text().replaceAll(" \\(.*\\)","");
+        return elements.text().replaceAll(" \\(.*\\)", "");
     }
 
-    public static int getYear(Document document){
+    public static int getYear(Document document) {
         Elements elements = document.select(".title_wrapper>h1>span>a");
         return Integer.parseInt(elements.text());
     }
 
-    public static String getPremierData(Document document){
+    public static String getPremierData(Document document) {
         Elements elements = document.select("#title-overview-widget > div.vital > div.title_block > div > div.titleBar > div.title_wrapper > div.subtext > a:last-child");
-        return elements.text().replaceAll("\\(.*\\)","");
+        return elements.text().replaceAll("\\(.*\\)", "");
     }
 
-    public static String getGenresList(Document document){
+    public static String getGenresList(Document document) {
         Elements elements = document.select("#titleStoryLine > div:nth-child(10) > a");
         StringBuilder str = new StringBuilder();
         return workWithStringBuilder(elements, str);
     }
 
-    public static String getDirector(Document document){
+    public static String getDirector(Document document) {
         Elements elements = document.select("#title-overview-widget > div.plot_summary_wrapper > div.plot_summary > div:nth-child(2) > a");
         return elements.text();
     }
 
-    public static String getStarsList(Document document){
+    public static String getStarsList(Document document) {
         Elements elements = document.select("#title-overview-widget > div.plot_summary_wrapper > div.plot_summary > div:nth-child(4) > a:not(:last-child)");
         StringBuilder str = new StringBuilder();
         return workWithStringBuilder(elements, str);
     }
 
-    public static String getAnnotation(Document document){
+    public static String getAnnotation(Document document) {
         Elements elements = document.select("#titleStoryLine > div:nth-child(3) > p > span");
         return elements.text();
     }
 
-    public static String getSynopsis(Document document) throws IOException {
-        document = Jsoup.connect("https://www.imdb.com/title/tt0113243/synopsis?ref_=tt_stry_pl").get();
+    public static String getSynopsis(Document document, String id) throws IOException {
+        document = Jsoup.connect("https://www.imdb.com/title/tt" + id + "/synopsis?ref_=tt_stry_pl").get();
         Elements elements = document.select("#plot-synopsis-content>li");
         return elements.text();
     }

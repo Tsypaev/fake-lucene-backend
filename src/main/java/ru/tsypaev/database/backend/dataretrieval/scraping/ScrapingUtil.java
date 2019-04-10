@@ -26,7 +26,7 @@ public class ScrapingUtil {
         String director = WebSpider.getDirector(document);
         String starsList = WebSpider.getStarsList(document);
         String annotation = WebSpider.getAnnotation(document);
-        String synopsis = WebSpider.getSynopsis(document);
+        String synopsis = WebSpider.getSynopsis(document, s);
 
 
         moviesRepository.setMoviesInfo(premierData, genresList, director, starsList, annotation, synopsis, Integer.valueOf(s));
