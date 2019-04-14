@@ -9,7 +9,11 @@
 
 ## Methods:
 * /ping - return OK if service is available;
+* /lucene/search/q=< text >, type= < type > - return first 10 notes from DB which contains < text >;
 * /search/q=< text > - return first 10 notes from DB which contains < text >.
+
+`text` - searching text.
+`type` - type of searching.
 
 ## Sources:
 * backend - https://github.com/Tsypaev/fake-lucene-backend 
