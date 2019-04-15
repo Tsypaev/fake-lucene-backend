@@ -13,6 +13,7 @@
 * /search/q=< text > - return first 10 notes from DB which contains < text >.
 
 `text` - searching text.
+
 `type` - type of searching.
 
 ## Sources:
