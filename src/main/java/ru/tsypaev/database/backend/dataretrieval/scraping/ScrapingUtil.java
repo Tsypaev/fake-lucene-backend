@@ -2,6 +2,8 @@ package ru.tsypaev.database.backend.dataretrieval.scraping;
 
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
 
 import java.io.IOException;
@@ -11,6 +13,7 @@ import java.io.IOException;
  */
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class ScrapingUtil {
 
     private MoviesRepository moviesRepository;
