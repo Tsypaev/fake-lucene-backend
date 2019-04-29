@@ -6,6 +6,10 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Class with properties for lucene
+ * @author Vladimir Tsypaev
+ */
 class LuceneBinding {
     static final Path INDEX_PATH = Paths.get(
             System.getProperty("user.home"), "lucene-tutorial-index");

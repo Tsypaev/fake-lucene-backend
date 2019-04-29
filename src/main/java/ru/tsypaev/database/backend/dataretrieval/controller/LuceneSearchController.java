@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
+ * Class for searching movies info via lucene.
  * @author Tsypaev Vladimir
  */
 
@@ -24,6 +25,13 @@ public class LuceneSearchController {
         this.luceneService = luceneService;
     }
 
+    /**
+     * @param text - searching text(part of film name)
+     * @param type - type of searching(may be 'all' or 'year')
+     * @param response - HTTP response
+     * @return movies in JSON format
+     * @throws Exception
+     */
     @GetMapping(params = {"q", "type"})
     List<Movie> getMovies(@RequestParam("q") String text,  @RequestParam("type") String type, HttpServletResponse response) throws Exception {
             response.addHeader("Access-Control-Allow-Origin","*");

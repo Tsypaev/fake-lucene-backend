@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * @author Vladimir Tsypaev
  */
-
+@Deprecated
 @RestController
 @RequestMapping("/update")
 public class UpdateDatabaseController {

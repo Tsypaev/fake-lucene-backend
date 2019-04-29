@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * Class for ping service
  * @author Tsypaev Vladimir
  */
 
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/ping")
 public class PingController {
 
+    /**
+     * @return HttpStatus
+     */
     @GetMapping
     HttpStatus getPing() {
         return HttpStatus.OK;

@@ -9,6 +9,7 @@ import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import java.util.List;
 
 /**
+ * Class for working with data in database
  * @author Tsypaev Vladimir
  */
 
@@ -27,9 +28,10 @@ public interface MoviesRepository extends CrudRepository<Movie, Long> {
     @Query(value = "SELECT year FROM data_retrieval.public.movies", nativeQuery = true)
     List<Integer> getYears();
 
-    @Query(value = "SELECT id FROM data_retrieval.public.movies LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT id FROM data_retrieval.public.movies", nativeQuery = true)
     List<Integer> getId();
 
+    @Deprecated
     @Modifying
     @Query(value = "update data_retrieval.public.movies set premiere_date = ?1, genre_list = ?2, director = ?3, movie_stars = ?4, annotation = ?5, summary = ?6 where id = ?7", nativeQuery = true)
     void setMoviesInfo(String primiereDate,

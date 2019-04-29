@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 /**
+ * Entity of movie
  * @author Tsypaev Vladimir
  */
 
@@ -54,6 +55,9 @@ public class Movie {
                 '}';
     }
 
+    /**
+     * Movies will be equals if equals year, id and name
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

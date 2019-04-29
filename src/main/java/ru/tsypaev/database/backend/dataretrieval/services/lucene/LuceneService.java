@@ -21,13 +21,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tsypaev.database.backend.dataretrieval.entity.Movie;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
-import ru.tsypaev.database.backend.dataretrieval.services.TextProcessingService;
+import ru.tsypaev.database.backend.dataretrieval.services.TextUtilService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.lucene.document.Field.Store.YES;
+
+/**
+ * Class for searching via Lucene
+ * @author Vladimir Tsypaev
+ */
 
 @Service
 public class LuceneService {
@@ -36,13 +41,20 @@ public class LuceneService {
 
     @Autowired
     private final MoviesRepository moviesRepository;
-    private TextProcessingService textProcessingService;
+    private TextUtilService textUtilService;
 
-    public LuceneService(MoviesRepository moviesRepository, TextProcessingService textProcessingService) {
+    public LuceneService(MoviesRepository moviesRepository, TextUtilService textUtilService) {
         this.moviesRepository = moviesRepository;
-        this.textProcessingService = textProcessingService;
+        this.textUtilService = textUtilService;
     }
 
+    /**
+     *
+     * @param text - searching text
+     * @param type - type of searching
+     * @return founf movies
+     * @throws Exception
+     */
     public List<Movie> searchLucene(String text, String type) throws Exception {
 
         List<Movie> movies = new ArrayList<>();
@@ -50,22 +62,25 @@ public class LuceneService {
         IndexReader reader = DirectoryReader.open(directory);
         IndexSearcher searcher = new IndexSearcher(reader);
 
-        if (type.equals("all")){
-            List<TopDocs> topDocs = searchByFewWords(text, searcher);
+        switch (type) {
+            case "all": {
+                List<TopDocs> topDocs = searchByFewWords(text, searcher);
+                dirtyHack(movies, searcher, topDocs);
+                reader.close();
 
-            dirtyHack(movies, searcher, topDocs);
+                return movies;
+            }
+            case "year": {
+                int yearFromText = textUtilService.getYearFromText(text);
+                String processingString = textUtilService.deleteYearFromText(text, yearFromText);
+                List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
+                dirtyHack(movies, searcher, topDocs);
+                reader.close();
 
-            reader.close();
-
-            return movies;
-        } else {
-            int yearFromText = textProcessingService.getYearFromText(text);
-            String processingString = textProcessingService.deleteYearFromText(text, yearFromText);
-            List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
-            dirtyHack(movies, searcher, topDocs);
-            reader.close();
-
-            return movies;
+                return movies;
+            }
+            default:
+                return null;
         }
     }
 
@@ -80,6 +95,11 @@ public class LuceneService {
         }
     }
 
+    /**
+     *
+     * @return directory with indexes
+     * @throws IOException
+     */
     private Directory writeIndex() throws IOException {
         Directory directory = FSDirectory.open(LuceneBinding.INDEX_PATH);
         IndexWriterConfig writerConfig = new IndexWriterConfig(LuceneBinding.getAnalyzer());
@@ -131,6 +151,13 @@ public class LuceneService {
 
     }
 
+    /**
+     *
+     * @param searcher - indexSearcher
+     * @param docs - found movie
+     * @return instance of Movie.class
+     * @throws IOException
+     */
     private Movie createMovieFromDocs(IndexSearcher searcher, ScoreDoc docs) throws IOException {
         Document d = searcher.doc(docs.doc);
 
@@ -139,20 +166,42 @@ public class LuceneService {
         movie.setName(d.get(LuceneBinding.NAME_FIELD));
         movie.setYear(Integer.parseInt(d.get(LuceneBinding.YEAR_FIELD)));
         movie.setId(Integer.parseInt(d.get(LuceneBinding.ID_FIELD)));
+
         return movie;
     }
 
+    /**
+     *
+     * @param name - name of movie
+     * @param searcher - indexSearcher
+     * @return found movie
+     * @throws Exception
+     */
     private static TopDocs searchByName(String name, IndexSearcher searcher) throws Exception {
         QueryParser qp = new QueryParser("name", new StandardAnalyzer());
         Query firstNameQuery = qp.parse(name);
         return searcher.search(firstNameQuery, LIMIT);
     }
 
+    /**
+     *
+     * @param name - name of movie
+     * @param searcher - indexSearcher
+     * @return found movie
+     * @throws Exception
+     */
     private static TopDocs searchByPathName(String name, IndexSearcher searcher) throws Exception {
         WildcardQuery wildcardQuery = new WildcardQuery(new Term("name", "*" + name + "*"));
         return searcher.search(wildcardQuery, LIMIT);
     }
 
+    /**
+     *
+     * @param name - name of movie
+     * @param searcher - indexSearcher
+     * @return found movies
+     * @throws Exception
+     */
     private static List<TopDocs> searchByFewWords(String name, IndexSearcher searcher) throws Exception {
         List<TopDocs> topDocs = new ArrayList<>();
         String[] words = name.split(" ");
@@ -173,12 +222,27 @@ public class LuceneService {
         return topDocs;
     }
 
+    /**
+     *
+     * @param name - name of movie
+     * @param searcher - indexSearcher
+     * @return found movie
+     * @throws Exception
+     */
     private static TopDocs searchByYear(String name, IndexSearcher searcher) throws Exception {
         QueryParser qp = new QueryParser("year", new StandardAnalyzer());
         Query firstNameQuery = qp.parse(name);
         return searcher.search(firstNameQuery, LIMIT);
     }
 
+    /**
+     *
+     * @param name - name of movie
+     * @param year - year of movie
+     * @param searcher - indexSearcher
+     * @return found movies
+     * @throws Exception
+     */
     private static List<TopDocs> searchByTitleAndYear(String name, String year, IndexSearcher searcher) throws Exception {
         List<TopDocs> topDocs = new ArrayList<>();
 

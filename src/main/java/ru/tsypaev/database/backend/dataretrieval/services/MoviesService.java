@@ -7,6 +7,10 @@ import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
 
 import java.util.List;
 
+/**
+ * Class for searching via database query
+ * @author Vladimir Tsypaev
+ */
 @Service
 public class MoviesService {
 

@@ -1,18 +1,16 @@
 package ru.tsypaev.database.backend.dataretrieval.scraping;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Vladimir Tsypaev
  */
+@Deprecated
 public class WebSpider {
 
     public static String getName(Document document) {

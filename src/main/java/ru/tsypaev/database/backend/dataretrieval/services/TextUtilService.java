@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class TextProcessingService {
+public class TextUtilService {
 
     public int getYearFromText(String text) {
         Pattern pattern = Pattern.compile("\\d{4}");

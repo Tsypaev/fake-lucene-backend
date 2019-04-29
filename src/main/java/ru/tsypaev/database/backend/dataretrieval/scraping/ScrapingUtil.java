@@ -12,6 +12,7 @@ import java.io.IOException;
  * @author Vladimir Tsypaev
  */
 
+@Deprecated
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class ScrapingUtil {

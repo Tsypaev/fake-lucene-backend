@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * @author Vladimir Tsypaev
  */
+@Deprecated
 public class MoveInfo {
 
     private String title;
