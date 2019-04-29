@@ -11,11 +11,10 @@
 - /ping - return OK if service is available;
 - /lucene/search/q=< text >, type= < type > - return first 10 notes from DB;
   - q=text - serching text;
-  - type=type - type of searching("all" - search by name of movie, othr value - serach by year and movie).
+  - type=type - type of searching("all" - search by name of movie, "year" - serach by year and movie).
 - /search/q=< text >, type= < type > - return first 10 notes from DB;
   - q=text - serching text;
   - type=type - type of searching("all" - search by name of movie, "year" - serach by year and movie).
-- /update - update DB with logic written in `ScrapingService`.
 
 ## Sources:
 * backend - https://github.com/Tsypaev/fake-lucene-backend 
