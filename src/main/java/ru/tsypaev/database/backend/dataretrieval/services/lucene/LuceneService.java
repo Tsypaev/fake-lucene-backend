@@ -73,8 +73,16 @@ public class LuceneService {
             case "year": {
                 int yearFromText = textUtilService.getYearFromText(text);
                 String processingString = textUtilService.deleteYearFromText(text, yearFromText);
-                List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
-                dirtyHack(movies, searcher, topDocs);
+                if(processingString.equals("")){
+                    TopDocs topDocs = searchByYear(String.valueOf(yearFromText), searcher);
+                    for (int i = 0; i < topDocs.scoreDocs.length; i++) {
+                        Movie movie = createMovieFromDocs(searcher, topDocs.scoreDocs[i]);
+                        movies.add(movie);
+                    }
+                } else {
+                    List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
+                    dirtyHack(movies, searcher, topDocs);
+                }
                 reader.close();
 
                 return movies;
