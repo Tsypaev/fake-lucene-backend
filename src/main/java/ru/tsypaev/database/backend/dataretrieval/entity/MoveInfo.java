@@ -1,23 +1,21 @@
 package ru.tsypaev.database.backend.dataretrieval.entity;
 
-import java.util.List;
-
 /**
  * @author Vladimir Tsypaev
  */
-@Deprecated
+
 public class MoveInfo {
 
     private String title;
-    private int year;
+    private String year;
     private String primierData;
-    private List<String> genresList;
+    private String genresList;//
     private String director;
-    private List<String> filmStars;
+    private String filmStars;//
     private String annotation;
     private String synopsis;
 
-    MoveInfo(String title, int year, String primierData, List<String> genresList, String director, List<String> filmStars, String annotation, String synopsis) {
+    public MoveInfo(String title, String year, String primierData, String genresList, String director, String filmStars, String annotation, String synopsis) {
         this.title = title;
         this.year = year;
         this.primierData = primierData;
@@ -36,11 +34,11 @@ public class MoveInfo {
         this.title = title;
     }
 
-    public int getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(int year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
@@ -52,11 +50,11 @@ public class MoveInfo {
         this.primierData = primierData;
     }
 
-    public List<String> getGenresList() {
+    public String getGenresList() {
         return genresList;
     }
 
-    public void setGenresList(List<String> genresList) {
+    public void setGenresList(String genresList) {
         this.genresList = genresList;
     }
 
@@ -68,11 +66,11 @@ public class MoveInfo {
         this.director = director;
     }
 
-    public List<String> getFilmStars() {
+    public String getFilmStars() {
         return filmStars;
     }
 
-    public void setFilmStars(List<String> filmStars) {
+    public void setFilmStars(String filmStars) {
         this.filmStars = filmStars;
     }
 

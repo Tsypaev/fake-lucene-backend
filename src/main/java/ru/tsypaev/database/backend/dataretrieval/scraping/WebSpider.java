@@ -10,7 +10,6 @@ import java.io.IOException;
 /**
  * @author Vladimir Tsypaev
  */
-@Deprecated
 public class WebSpider {
 
     public static String getName(Document document) {
@@ -18,9 +17,9 @@ public class WebSpider {
         return elements.text().replaceAll(" \\(.*\\)", "");
     }
 
-    public static int getYear(Document document) {
+    public static String getYear(Document document) {
         Elements elements = document.select(".title_wrapper>h1>span>a");
-        return Integer.parseInt(elements.text());
+        return String.valueOf(Integer.parseInt(elements.text()));
     }
 
     public static String getPremierData(Document document) {

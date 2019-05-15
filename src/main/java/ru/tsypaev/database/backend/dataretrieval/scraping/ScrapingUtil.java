@@ -4,27 +4,22 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.tsypaev.database.backend.dataretrieval.entity.MoveInfo;
 import ru.tsypaev.database.backend.dataretrieval.repository.MoviesRepository;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Vladimir Tsypaev
  */
 
-@Deprecated
 @Service
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class ScrapingUtil {
 
-    private MoviesRepository moviesRepository;
-
-    public ScrapingUtil(MoviesRepository moviesRepository) {
-        this.moviesRepository = moviesRepository;
-    }
-
-
-    public void putInfoIntoDb(String s, Document document) throws IOException {
+    public MoveInfo createMovie(String s, Document document) throws IOException {
+        String title = WebSpider.getName(document);
+        String year = WebSpider.getYear(document);
         String premierData = WebSpider.getPremierData(document);
         String genresList = WebSpider.getGenresList(document);
         String director = WebSpider.getDirector(document);
@@ -32,7 +27,16 @@ public class ScrapingUtil {
         String annotation = WebSpider.getAnnotation(document);
         String synopsis = WebSpider.getSynopsis(document, s);
 
-
-        moviesRepository.setMoviesInfo(premierData, genresList, director, starsList, annotation, synopsis, Integer.valueOf(s));
+        MoveInfo movieInfo = new MoveInfo(
+                title,
+                year,
+                premierData,
+                genresList,
+                director,
+                starsList,
+                annotation,
+                synopsis
+        );
+        return movieInfo;
     }
 }
