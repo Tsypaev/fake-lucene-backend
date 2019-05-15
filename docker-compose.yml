@@ -7,7 +7,7 @@ services:
       - "3000:3000"
 
   backend:
-    image: tsypaev/fake-lucene-backend:0.0.3-SNAPSHOT
+    image: tsypaev/fake-lucene-backend:0.0.4-SNAPSHOT
     ports:
       - "8080:8090"
 
