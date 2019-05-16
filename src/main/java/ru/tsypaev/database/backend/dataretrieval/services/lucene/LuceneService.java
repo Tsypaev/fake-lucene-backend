@@ -80,8 +80,17 @@ public class LuceneService {
                         movies.add(movie);
                     }
                 } else {
+                    List<Movie> fake = new ArrayList<>();
                     List<TopDocs> topDocs = searchByTitleAndYear(processingString, String.valueOf(yearFromText), searcher);
-                    dirtyHack(movies, searcher, topDocs);
+                    for (int i = 0; i < topDocs.get(0).scoreDocs.length; i++) {
+                        Movie movie = createMovieFromDocs(searcher, topDocs.get(0).scoreDocs[i]);
+                        fake.add(movie);
+                    }
+                    for (int i = 0; i < topDocs.get(1).scoreDocs.length; i++) {
+                        Movie movie = createMovieFromDocs(searcher, topDocs.get(1).scoreDocs[i]);
+                        movies.add(movie);
+                    }
+                    movies.retainAll(fake);
                 }
                 reader.close();
 
@@ -203,6 +212,11 @@ public class LuceneService {
         return searcher.search(wildcardQuery, LIMIT);
     }
 
+    private static TopDocs searchByPathNameWithoutLimit(String name, IndexSearcher searcher) throws Exception {
+        WildcardQuery wildcardQuery = new WildcardQuery(new Term("name", "*" + name + "*"));
+        return searcher.search(wildcardQuery,1000000);
+    }
+
     /**
      *
      * @param name - name of movie
@@ -243,6 +257,12 @@ public class LuceneService {
         return searcher.search(firstNameQuery, LIMIT);
     }
 
+    private static TopDocs searchByYearWithoutLimit(String name, IndexSearcher searcher) throws Exception {
+        QueryParser qp = new QueryParser("year", new StandardAnalyzer());
+        Query firstNameQuery = qp.parse(name);
+        return searcher.search(firstNameQuery, 1000000);
+    }
+
     /**
      *
      * @param name - name of movie
@@ -254,8 +274,8 @@ public class LuceneService {
     private static List<TopDocs> searchByTitleAndYear(String name, String year, IndexSearcher searcher) throws Exception {
         List<TopDocs> topDocs = new ArrayList<>();
 
-        TopDocs docName = searchByPathName(name, searcher);
-        TopDocs docYear = searchByYear(year, searcher);
+        TopDocs docName = searchByPathNameWithoutLimit(name, searcher);
+        TopDocs docYear = searchByYearWithoutLimit(year, searcher);
 
         topDocs.add(docName);
         topDocs.add(docYear);
